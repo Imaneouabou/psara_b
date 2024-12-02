@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: ms_pg_sql_jpeg
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - jpeg-net
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: ms_pgadmin_jpeg
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.prg}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - 5050:80
+    networks:
+      - jpeg-net
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  pgadmin:
+
+networks:
+  jpeg-net:
