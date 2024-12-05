@@ -10,4 +10,5 @@ public class AnnonceApplication {
 		SpringApplication.run(AnnonceApplication.class, args);
 	}
 
+	/*Comment*/
 }
