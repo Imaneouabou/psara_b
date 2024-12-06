@@ -8,17 +8,14 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
   jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  flyway:
-    baseline-on-migrate: true
-    enabled: true
-    baseline-description: "init"
-    baseline-version: 0
-    user: ${spring.datasource.username}
-    password: ${spring.datasource.password}
 eureka:
   client:
     serviceUrl:
@@ -27,3 +24,12 @@ eureka:
     fetchRegistry: true
   instance:
     preferIpAddress: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql: TRACE

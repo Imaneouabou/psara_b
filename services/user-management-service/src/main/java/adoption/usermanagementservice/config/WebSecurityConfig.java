@@ -53,7 +53,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults()) // Apply CORS configuration
                 .authorizeHttpRequests(request-> request
-                        .requestMatchers("/", "/public-info/**", "logout" ,"/images/**", "/api/auth/register", "/api/auth/login", "/api/auth/auth/login", "/login", "/api/auth/checkSession").permitAll()
+                        .requestMatchers("/**", "/public-info/**", "logout" ,"/images/**", "/api/auth/register", "/api/auth/login", "/api/auth/auth/login", "/login", "/api/auth/checkSession").permitAll()
                         .requestMatchers("/admin/**" ).hasAnyAuthority("ADMIN")
                         .requestMatchers("/user/**" ).hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated())

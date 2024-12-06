@@ -16,9 +16,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "USER", catalog = "user-management")
+@Table(name = "users", catalog = "user-management")
 public class User implements UserDetails {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,11 +42,12 @@ public class User implements UserDetails {
     @Column(name = "ROLE")
     private String role ;
 
-    @Column(name = "DATE_CREATION", columnDefinition = "datetime default now()")
+    @Column(name = "date_creation", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime dateCreation;
 
-    @Column(name = "DATE_UPDATE")
+    @Column(name = "date_update", columnDefinition = "TIMESTAMP")
     private LocalDateTime dateUpdate;
+
 
     @Column(name = "USER_CREATION")
     private Long userCreation;
