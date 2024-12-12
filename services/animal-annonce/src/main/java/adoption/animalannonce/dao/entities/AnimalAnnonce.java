@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "AnimalAnnonce", catalog = "annonce-management")
 public class AnimalAnnonce {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id")

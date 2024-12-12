@@ -19,14 +19,12 @@ public class UserDto {
     private String refreshToken;
     private String expirationTime;
     private Long id;
-    private String nom;
-    private String prenom;
-    private String phone;
     private String email;
     private String password;
+    private String phone;
     private String role;
-    private LocalDateTime dateCreation;
-    private LocalDateTime dateUpdate;
+    private Boolean estVerifie;
+    private LocalDateTime dateInscription;
     private User users;
     private List<User> usersList;
 }

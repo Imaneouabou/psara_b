@@ -17,6 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users", catalog = "user-management")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 public class User implements UserDetails {
 
     @Id
@@ -24,30 +26,23 @@ public class User implements UserDetails {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "NOM", length=250)
-    private String nom;
-
-    @Column(name = "PRENOM", length = 250)
-    private String prenom;
-
-    @Column(name = "EMAIL", length = 250)
+    @Column(name = "email", length = 250)
     private String email;
 
-    @Column(name = "PHONE" )
-    private String phone;
-
-    @Column(name = "PASSWORD", length = 250)
+    @Column(name = "motDepasse", length = 250)
     private String password;
 
-    @Column(name = "ROLE")
-    private String role ;
+    @Column(name = "phone", length = 250)
+    private String phone;
 
-    @Column(name = "date_creation", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime dateCreation;
+    @Column(name = "role", length = 250)
+    private String role;
 
-    @Column(name = "date_update", columnDefinition = "TIMESTAMP")
-    private LocalDateTime dateUpdate;
+    @Column(name = "estVerifie")
+    private Boolean estVerifie;
 
+    @Column(name = "dateInscription", columnDefinition = "TIMESTAMP")
+    private LocalDateTime dateInscription;
 
     @Column(name = "USER_CREATION")
     private Long userCreation;

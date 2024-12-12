@@ -6,6 +6,8 @@ import adoption.usermanagementservice.exception.UserAlreadyExistsException;
 import adoption.usermanagementservice.services.UserService;
 import adoption.usermanagementservice.services.criteria.UserCriteria;
 import adoption.usermanagementservice.services.dto.LoginDto;
+import adoption.usermanagementservice.services.dto.LoginResponseDto;
+import adoption.usermanagementservice.services.dto.UserCreationDto;
 import adoption.usermanagementservice.services.dto.UserDto;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,14 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginResponseDto req){
+        return ResponseEntity.ok(userService.login(req));
+    }
+
+
+/*
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
         try {
@@ -106,4 +116,6 @@ public class AuthController {
         }
     }
 
+
+ */
 }

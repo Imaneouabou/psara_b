@@ -1,9 +1,16 @@
 package adoption.usermanagementservice.services;
 
 
-import jakarta.persistence.criteria.Predicate;
+import adoption.usermanagementservice.dao.entities.Association;
+import adoption.usermanagementservice.dao.entities.Utilisateur;
+import adoption.usermanagementservice.dao.repositories.AssociationRepository;
+import adoption.usermanagementservice.dao.repositories.UtilisateurRepository;
+import adoption.usermanagementservice.exception.UserAlreadyExistsException;
+import adoption.usermanagementservice.services.dto.*;
+import adoption.usermanagementservice.services.mappers.AssociationMapper;
+import adoption.usermanagementservice.services.mappers.UtilisateurMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,17 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import adoption.usermanagementservice.dao.entities.User;
 import adoption.usermanagementservice.dao.repositories.UserRepository;
-import adoption.usermanagementservice.exception.FunctionalException;
-import adoption.usermanagementservice.exception.UserAlreadyExistsException;
-import adoption.usermanagementservice.services.criteria.UserCriteria;
-import adoption.usermanagementservice.services.dto.ResponseDto;
-import adoption.usermanagementservice.services.dto.UserDto;
 import adoption.usermanagementservice.services.mappers.UserMapper;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -36,11 +36,162 @@ public class UserService {
     private UserMapper userMapper;
 
     @Autowired
+    private UtilisateurRepository utilisateurRepository;
+
+    @Autowired
+    private AssociationRepository associationRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JWTUtils jwtUtils;
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UtilisateurMapper  utilisateurMapper   ;
+
+    @Autowired
+    private AssociationMapper associationMapper  ;
+
+
+    public User createUser(UserCreationDto userCreationDTO) {
+        Optional<User> existingUser = userRepository.findByEmail(userCreationDTO.getEmail());
+        if (existingUser.isPresent()) {
+            throw new UserAlreadyExistsException("User with email " + userCreationDTO.getEmail() + " already exists.");
+        }
+        // Création d'un utilisateur en fonction du type spécifié
+        if ("UTILISATEUR".equalsIgnoreCase(userCreationDTO.getUserType())) {
+            return createUtilisateur(userCreationDTO);
+        } else if ("ASSOCIATION".equalsIgnoreCase(userCreationDTO.getUserType())) {
+            return createAssociation(userCreationDTO);
+        } else {
+            throw new IllegalArgumentException("Type d'utilisateur non valide");
+        }
+    }
+
+    private Utilisateur createUtilisateur(UserCreationDto userCreationDTO) {
+        Utilisateur utilisateur = new Utilisateur();
+
+        utilisateur.setEmail(userCreationDTO.getEmail());
+        utilisateur.setPassword(passwordEncoder.encode(userCreationDTO.getPassword())); // Vous devez crypter le mot de passe ici
+        utilisateur.setPhone(userCreationDTO.getPhone());
+        utilisateur.setRole(userCreationDTO.getRole());
+        utilisateur.setEstVerifie(userCreationDTO.getEstVerifie());
+        utilisateur.setNom(userCreationDTO.getNom());
+        utilisateur.setPrenom(userCreationDTO.getPrenom());
+        utilisateur.setCin(userCreationDTO.getCin());
+        utilisateur.setDateInscription(LocalDateTime.now());
+
+        // Sauvegarde dans le repository
+        return utilisateurRepository.save(utilisateur);
+    }
+
+    private Association createAssociation(UserCreationDto userCreationDTO) {
+        Association association = new Association();
+
+        association.setEmail(userCreationDTO.getEmail());
+        association.setPassword(passwordEncoder.encode(userCreationDTO.getPassword())); // Vous devez crypter le mot de passe ici
+        association.setPhone(userCreationDTO.getPhone());
+        association.setRole(userCreationDTO.getRole());
+        association.setEstVerifie(userCreationDTO.getEstVerifie());
+        association.setNomOrganisation(userCreationDTO.getNomOrganisation());
+        association.setDescription(userCreationDTO.getDescription());
+        association.setAdresse(userCreationDTO.getAdresse());
+        association.setSiteWeb(userCreationDTO.getSiteWeb());
+        association.setNr(userCreationDTO.getNr());
+        association.setDocumentVerification(userCreationDTO.getDocumentVerification());
+        association.setDateInscription(LocalDateTime.now());
+
+        // Sauvegarde dans le repository
+        return associationRepository.save(association);
+    }
+
+
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return userMapper.toDto(user);
+    }
+
+    public AssociationDto getAssociationById(Long id) {
+        Association association = associationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Association not found"));
+        return associationMapper.toAssociationDTO(association);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public UtilisateurDto getUtilisateurById(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur not found"));
+        return utilisateurMapper.toUtilisateurDto(utilisateur);
+    }
+
+
+    public Optional<User> authenticateUser(String email, String password) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent() && passwordEncoder.matches(password, userOpt.get().getPassword())) {
+            return userOpt;
+        }
+        return Optional.empty();
+    }
+
+    public LoginResponseDto login(LoginResponseDto loginRequest) {
+        LoginResponseDto response = new LoginResponseDto();
+        try {
+            // Authenticate the user using the provided email and password
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(), loginRequest.getPassword()
+                    )
+            );
+
+            // Fetch the user details from the repository
+            var user = userRepository.findByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            // Generate JWT and refresh tokens
+            var jwt = jwtUtils.generateToken(user);
+            var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
+
+            // Populate the response DTO with the appropriate details
+            response.setUserId(user.getId());
+            response.setStatusCode(200);
+            response.setToken(jwt);
+            response.setRole(user.getRole());
+            response.setEmail(user.getEmail());
+            response.setRefreshToken(refreshToken);
+            response.setExpirationTime("24Hrs");
+            response.setMessage("Connexion réussie");
+
+            return response;
+
+        } catch (UsernameNotFoundException e) {
+            // Handle case when the user is not found
+            response.setStatusCode(404);
+            response.setMessage("Utilisateur non trouvé: " + e.getMessage());
+            return response;
+
+        } catch (BadCredentialsException e) {
+            // Return HTTP 401 instead of 200 with an error message
+            response.setStatusCode(401);
+            response.setMessage("Identifiants incorrects: " + e.getMessage());
+            return response;
+
+        } catch (Exception e) {
+            // Handle any other exceptions that might occur
+            response.setStatusCode(500);
+            response.setMessage("Une erreur est survenue: " + e.getMessage());
+            return response;
+        }
+    }
+
+
+    /*
+
 
     public UserDto registerUser(UserDto userDto) {
         Optional<User> existingUser = userRepository.findByEmail(userDto.getEmail());
@@ -249,5 +400,7 @@ public class UserService {
     }
 
 
+
+     */
 
 }
