@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "AnimalAnnonce", catalog = "annonce-management")
+@Table(name = "AnimalAnnonce")
 public class AnimalAnnonce {
 
     @Id
@@ -62,6 +62,17 @@ public class AnimalAnnonce {
     @CollectionTable(name = "ANIMAL_IMAGES", joinColumns = @JoinColumn(name = "ANIMAL_ID"))
     @Column(name = "IMAGE")
     private List<String> images;
+
+    @OneToMany(mappedBy = "animalAnnonce", cascade = CascadeType.ALL)
+    private List<Adoption> adoptions;
+
+    public List<Adoption> getAdoptions() {
+        return adoptions;
+    }
+
+    public void setAdoptions(List<Adoption> adoptions) {
+        this.adoptions = adoptions;
+    }
 
     public Long getId() {
         return id;

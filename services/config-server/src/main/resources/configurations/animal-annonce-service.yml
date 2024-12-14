@@ -5,20 +5,25 @@ spring:
   image:
     storage:
       path: "./uploads/images"
+  sql:
+    init:
+      mode: always
   datasource:
     url: jdbc:postgresql://localhost:5432/annonce-management
     username: root
     password: password
     driver-class-name: org.postgresql.Driver
-    jpa:
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
       hibernate:
-        ddl-auto: update
-      database: postgresql
-      database-platform: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        hibernate.default_schema: public
+
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   servlet:
     multipart:
@@ -44,3 +49,7 @@ logging:
         type:
           descriptor:
             sql: TRACE
+      springframework:
+        orm:
+          jpa: DEBUG
+    root: INFO
