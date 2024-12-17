@@ -40,7 +40,7 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:3000" );
+        config.addAllowedOrigin("http://localhost:5173/" );
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(formLogin ->
                         formLogin
-                                .loginPage("http://localhost:3000/")
+                                .loginPage("http://localhost:5173/")
                                 .successHandler(new AuthenticationSuccessHandler())
                                 .permitAll()
                 )

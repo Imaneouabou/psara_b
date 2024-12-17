@@ -1,0 +1,28 @@
+server:
+  port: 8080 # Port de l'API Gateway
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: animal-annonce-service
+          uri: lb://animal-annonce-service
+          predicates:
+            - Path=/api/animal-annonces/**, /api/adoptions/**
+
+        - id: user-management-service
+          uri: lb://user-management-service
+          predicates:
+            - Path=/api/auth/**, /api/users/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
