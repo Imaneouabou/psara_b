@@ -12,5 +12,6 @@ public class AdoptionDto {
     private String typeAdoption;
     private Long idUser;
     private Long statusId; // Correspond à l'entité StatusEntity
+    private StatusDto status;  // Ajouter un champ pour le StatusDto
     private Long animalAnnonceId; // Correspond à l'entité AnimalAnnonce
 }

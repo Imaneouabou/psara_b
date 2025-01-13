@@ -36,16 +36,17 @@ public class WebSecurityConfig {
     private JWTAuthFilter jwtAuthFilter;
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:5173/" );
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.addAllowedOrigin("http://localhost:5173"); // Frontend autorisé
+        config.addAllowedHeader("*"); // Autorise tous les en-têtes
+        config.addAllowedMethod("*"); // Autorise toutes les méthodes
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,9 +54,9 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults()) // Apply CORS configuration
                 .authorizeHttpRequests(request-> request
-                        .requestMatchers("/**", "/public-info/**", "logout" ,"/images/**", "/api/auth/register", "/api/auth/login", "/api/auth/auth/login", "/login", "/api/auth/checkSession").permitAll()
-                        .requestMatchers("/admin/**" ).hasAnyAuthority("ADMIN")
-                        .requestMatchers("/user/**" ).hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers("/**", "/public-info/**","api/users/", "logout" ,"/images/**", "/api/auth/register", "/api/users/login", "/api/auth/auth/login", "/login", "/api/users/checkSession").permitAll()
+                        .requestMatchers("/api/**" ).hasAnyAuthority("ADMIN")
+                        .requestMatchers("/api/**" ).hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated())
                 .formLogin(formLogin ->
                         formLogin

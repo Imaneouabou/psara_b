@@ -4,11 +4,11 @@ server:
 spring:
   image:
     storage:
-      path: "./uploads/images"
+      path: "/home/agraich/Documents/3A/projet s5/backend_adoption/services/animal-annonce/uploads/images"
   sql:
     init:
       mode: always
-  datasource:
+  datasour ce:
     url: jdbc:postgresql://localhost:5432/annonce-management
     username: root
     password: password

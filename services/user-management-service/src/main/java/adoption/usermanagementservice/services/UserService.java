@@ -8,6 +8,7 @@ import adoption.usermanagementservice.dao.repositories.UtilisateurRepository;
 import adoption.usermanagementservice.exception.UserAlreadyExistsException;
 import adoption.usermanagementservice.services.dto.*;
 import adoption.usermanagementservice.services.mappers.AssociationMapper;
+import adoption.usermanagementservice.services.mappers.UserCreationMapper;
 import adoption.usermanagementservice.services.mappers.UtilisateurMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,8 @@ public class UserService {
 
     @Autowired
     private AssociationMapper associationMapper  ;
+    @Autowired
+    private UserCreationMapper userCreationMapper;
 
 
     public User createUser(UserCreationDto userCreationDTO) {
@@ -108,11 +111,50 @@ public class UserService {
     }
 
 
-    public UserDto getUserById(Long id) {
+    public UserCreationDto getUserById(Long id) {
+        // Récupérer l'utilisateur par ID
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        return userMapper.toDto(user);
+
+        // Créer le DTO
+        UserCreationDto response = new UserCreationDto();
+
+        // Remplir les informations générales de l'utilisateur
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setPhone(user.getPhone());
+        response.setRole(user.getRole());
+        response.setEstVerifie(user.getEstVerifie());
+
+        // Vérifier le rôle et remplir les informations spécifiques
+        if (user.getRole().equals("ROLE_ASSOCIATION")) {
+            // Si l'utilisateur est une association
+            Association association = associationRepository.findById(user.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Association not found"));
+
+            response.setNomOrganisation(association.getNomOrganisation());
+            response.setDescription(association.getDescription());
+            response.setAdresse(association.getAdresse());
+            response.setSiteWeb(association.getSiteWeb());
+            response.setNr(association.getNr());
+            response.setDocumentVerification(association.getDocumentVerification());
+        } else if (!user.getRole().equals("ROLE_ASSOCIATION")) {
+            // Si l'utilisateur est un utilisateur (type "UTILISATEUR")
+            Utilisateur utilisateur = utilisateurRepository.findById(user.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Utilisateur not found"));
+
+            response.setNom(utilisateur.getNom());
+            response.setPrenom(utilisateur.getPrenom());
+            response.setCin(utilisateur.getCin());
+        } else {
+            // Gestion d'un rôle inconnu
+            throw new IllegalArgumentException("Unknown user role: " + user.getRole());
+        }
+
+        // Retourner le DTO
+        return response;
     }
+
 
     public AssociationDto getAssociationById(Long id) {
         Association association = associationRepository.findById(id)
@@ -164,6 +206,18 @@ public class UserService {
             response.setRole(user.getRole());
             response.setEmail(user.getEmail());
             response.setRefreshToken(refreshToken);
+
+            if (!user.getRole().equals("ROLE_ASSOCIATION") ) {
+                Optional<Utilisateur> utilisateur = utilisateurRepository.findById(user.getId());
+                response.setNom(utilisateur.get().getNom());
+                response.setPrenom(utilisateur.get().getPrenom());
+            } else if (user.getRole().equals("ROLE_ASSOCIATION")){
+                Optional<Association> association = associationRepository.findById(user.getId());
+                response.setNom(association.get().getNomOrganisation());
+                response.setPrenom(association.get().getDescription());
+
+            }
+
             response.setExpirationTime("24Hrs");
             response.setMessage("Connexion réussie");
 

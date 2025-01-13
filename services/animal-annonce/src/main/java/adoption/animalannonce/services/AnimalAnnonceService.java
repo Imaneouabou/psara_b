@@ -1,9 +1,13 @@
 package adoption.animalannonce.services;
 
 
+import adoption.animalannonce.dao.entities.Adoption;
+import adoption.animalannonce.dao.repository.AdoptionRepository;
+import adoption.animalannonce.services.dto.AdoptionDto;
 import adoption.animalannonce.services.dto.AnimalAnnonceDto;
 import adoption.animalannonce.dao.entities.AnimalAnnonce;
 import adoption.animalannonce.exception.FunctionalException;
+import adoption.animalannonce.services.mappers.AdoptionMapper;
 import adoption.animalannonce.services.mappers.AnimalAnnonceMapper;
 import adoption.animalannonce.dao.repository.AnimalAnnonceRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +36,12 @@ public class AnimalAnnonceService {
     @Autowired
     private  AnimalAnnonceMapper animalAnnonceMapper;
 
+    @Autowired
+    private AdoptionRepository adoptionRepository;
+
+    @Autowired
+    AdoptionMapper adoptionMapper;
+
     // The directory where images will be saved
     @Value("${spring.image.storage.path}")
     private String imageStoragePath;
@@ -56,7 +66,7 @@ public class AnimalAnnonceService {
         Files.copy(file.getInputStream(), destinationFile, StandardCopyOption.REPLACE_EXISTING);
 
         // Return the path as a string
-        return destinationFile.toString();
+        return uniqueFilename;
     }
 
 
@@ -121,7 +131,28 @@ public class AnimalAnnonceService {
         return animalAnnonceMapper.toDto(updatedAnnonce);
     }
 
+    public List<AnimalAnnonceDto> findAnimalAnnoncesByIdUser(Long idUser) throws FunctionalException {
+        // Trouver toutes les annonces d'animaux correspondant à l'idUser
+        List<AnimalAnnonce> annonces = animalAnnonceRepository.findByUserCreation(idUser);
 
+        // Vérifier si des annonces existent pour cet utilisateur
+        if (annonces.isEmpty()) {
+            throw new FunctionalException("Aucune annonce trouvée pour l'utilisateur avec l'id " + idUser);
+        }
+
+        // Convertir les annonces en DTO et les retourner
+        List<AnimalAnnonceDto> annonceDtos = new ArrayList<>();
+        for (AnimalAnnonce annonce : annonces) {
+            annonceDtos.add(animalAnnonceMapper.toDto(annonce));
+        }
+        return annonceDtos;
+    }
+
+    // adoptions
+    public List<Adoption> getAdoptionsForUser(Long userId) {
+        // Appel au repository pour récupérer les adoptions pour les annonces créées par l'utilisateur
+        return adoptionRepository.findAdoptionsByUserCreation(userId);
+    }
 
     public AnimalAnnonceDto updateAnimal_Annonce(Long id, AnimalAnnonceDto animalAnnonceDto) throws FunctionalException, IOException {
         Optional<AnimalAnnonce> existingAnnonceOptional = animalAnnonceRepository.findById(id);

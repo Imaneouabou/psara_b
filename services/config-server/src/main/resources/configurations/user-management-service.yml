@@ -33,3 +33,6 @@ logging:
         type:
           descriptor:
             sql: TRACE
+
+    springframework:
+      security=DEBUG: DEBUG

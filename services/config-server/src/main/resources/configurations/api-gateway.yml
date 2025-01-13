@@ -1,17 +1,24 @@
-server:
-  port: 8080 # Port de l'API Gateway
-
 spring:
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
       routes:
         - id: animal-annonce-service
           uri: lb://animal-annonce-service
           predicates:
-            - Path=/api/animal-annonces/**, /api/adoptions/**
+            - Path=/api/animal-annonces/**, /api/adoptions/** , /images/** , /animal-annonce/uploads/images/**
+          filters:
+            - name: AddRequestHeader
+              args:
+                name: "Access-Control-Allow-Origin"
+                value: "http://localhost:5173" # Autoriser votre front-end
+            - name: AddRequestHeader
+              args:
+                name: "Access-Control-Allow-Methods"
+                value: "GET, POST, PUT, DELETE, OPTIONS"
+            - name: AddRequestHeader
+              args:
+                name: "Access-Control-Allow-Headers"
+                value: "Content-Type, Authorization"
 
         - id: user-management-service
           uri: lb://user-management-service

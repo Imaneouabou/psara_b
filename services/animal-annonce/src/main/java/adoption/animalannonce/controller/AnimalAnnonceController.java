@@ -1,10 +1,14 @@
 package adoption.animalannonce.controller;
 
+import adoption.animalannonce.dao.entities.Adoption;
+import adoption.animalannonce.dao.repository.AdoptionRepository;
+import adoption.animalannonce.services.dto.AdoptionDto;
 import adoption.animalannonce.services.dto.AnimalAnnonceDto;
 import adoption.animalannonce.exception.FunctionalException;
 import adoption.animalannonce.services.AnimalAnnonceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -16,7 +20,6 @@ public class AnimalAnnonceController {
 
     @Autowired
      private  AnimalAnnonceService animalAnnonceService;
-
 
 
     // Créer une annonce
@@ -31,6 +34,22 @@ public class AnimalAnnonceController {
         return animalAnnonceService.findAnimalAnnonceById(id);
     }
 
+    @GetMapping("/user-annonce/{idUser}")
+    public List<AnimalAnnonceDto> getAnimalAnnoncesByUser(@PathVariable Long idUser) throws FunctionalException {
+        return animalAnnonceService.findAnimalAnnoncesByIdUser(idUser);
+    }
+
+    // Endpoint pour récupérer toutes les demandes d'adoption d'un utilisateur pour ses propres annonces
+    @GetMapping("/demande-adoption/{userId}")
+    public ResponseEntity<List<Adoption>> getAdoptionsForUser(@PathVariable Long userId) {
+        List<Adoption> adoptions = animalAnnonceService.getAdoptionsForUser(userId);
+        return ResponseEntity.ok(adoptions);
+    }
+
+    @GetMapping("hello")
+    public void hello() {
+        System.out.println("hello");
+    }
     // Mettre à jour une annonce
     @PutMapping("/{id}")
     public AnimalAnnonceDto updateAnimalAnnonce(@PathVariable Long id, @ModelAttribute AnimalAnnonceDto animalAnnonceDto)

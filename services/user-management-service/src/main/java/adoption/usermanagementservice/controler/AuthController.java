@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/user")
+
 public class AuthController {
 
     @Autowired
     private UserService userService;
-
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginResponseDto req){

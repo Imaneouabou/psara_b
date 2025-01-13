@@ -10,6 +10,8 @@ public class LoginResponseDto {
     private String message;
     private String token;
     private String refreshToken;
+    private String nom;
+    private String prenom;
     private String expirationTime;
     private String email;
     private String role;

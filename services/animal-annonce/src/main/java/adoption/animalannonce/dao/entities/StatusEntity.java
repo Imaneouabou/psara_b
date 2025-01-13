@@ -1,5 +1,6 @@
 package adoption.animalannonce.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,5 +25,6 @@ public class StatusEntity {
     private String status;
 
     @OneToMany(mappedBy = "statusEntity" , cascade = CascadeType.ALL)
+    @JsonIgnore // Cette annotation ignore la relation bidirectionnelle
     private List<Adoption> adoptions ;
 }

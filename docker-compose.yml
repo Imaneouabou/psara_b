@@ -1,6 +1,32 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo
+    container_name: mongo_db
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongodatabase
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - jpeg-net
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=mongodatabase
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - jpeg-net
+
+
   postgres:
     container_name: ms_pg_sql_jpeg
     image: postgres:latest
@@ -34,6 +60,7 @@ services:
 volumes:
   postgres:
   pgadmin:
+  mongo: {}
 
 networks:
   jpeg-net:

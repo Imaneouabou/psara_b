@@ -11,11 +11,13 @@
         <option value="$PROJECT_DIR$/services/messagerie-service/pom.xml" />
         <option value="$PROJECT_DIR$/services/animal-annonce/pom.xml" />
         <option value="$PROJECT_DIR$/services/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/services/One-to-oneWebSotcketService/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/services/annonce/pom.xml" />
+        <option value="$PROJECT_DIR$/services/messagerie-service/pom.xml" />
       </set>
     </option>
   </component>

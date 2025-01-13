@@ -58,6 +58,33 @@ public class AdoptionService {
                 }).collect(Collectors.toList());
     }
 
+
+    public AdoptionDto updateStatusDecision(Long adoptionId, Long statusId) {
+        // Récupérer l'adoption par son ID
+        Optional<Adoption> adoptionOpt = adoptionRepository.findById(adoptionId);
+        if (!adoptionOpt.isPresent()) {
+            throw new IllegalArgumentException("Adoption avec l'ID " + adoptionId + " introuvable.");
+        }
+
+        // Récupérer le statut par son ID
+        Optional<StatusEntity> statusOpt = statusRepository.findById(statusId);
+        if (!statusOpt.isPresent()) {
+            throw new IllegalArgumentException("Statut avec l'ID " + statusId + " introuvable.");
+        }
+
+        // Mettre à jour le statut de l'adoption
+        Adoption adoption = adoptionOpt.get();
+        StatusEntity status = statusOpt.get();
+        adoption.setStatusEntity(status);  // Assurez-vous que le statut est bien une relation
+
+        // Sauvegarder l'adoption avec le nouveau statut
+        Adoption updatedAdoption = adoptionRepository.save(adoption);
+
+        // Retourner le DTO mis à jour
+        return adoptionMapper.toDto(updatedAdoption);
+    }
+
+
     /**
      * Ajouter une nouvelle adoption.
      */
@@ -121,9 +148,25 @@ public class AdoptionService {
      */
     public List<AdoptionDto> getAdoptionsByUserId(Long userId) {
         List<Adoption> adoptions = adoptionRepository.findByIdUser(userId);
+
         return adoptions.stream()
-                .map(adoptionMapper::toDto)
+                .map(adoption -> {
+                    // Mapper l'adoption à AdoptionDto
+                    AdoptionDto adoptionDto = adoptionMapper.toDto(adoption);
+
+                    // Créer un StatusDto et utiliser les setters pour définir les valeurs
+                    if (adoption.getStatusEntity() != null) {
+                        StatusEntity statusEntity = adoption.getStatusEntity();
+                        StatusDto statusDto = new StatusDto();
+                        statusDto.setId(statusEntity.getId());
+                        statusDto.setStatus(statusEntity.getStatus());
+                        adoptionDto.setStatus(statusDto);
+                    }
+
+                    return adoptionDto;
+                })
                 .collect(Collectors.toList());
     }
+
 
 }

@@ -1,5 +1,6 @@
 package adoption.animalannonce.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +42,7 @@ public class Adoption {
     private AnimalAnnonce animalAnnonce;
 
     @OneToMany( mappedBy = "adoption", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<AvisComment> avisComments;
 
 }

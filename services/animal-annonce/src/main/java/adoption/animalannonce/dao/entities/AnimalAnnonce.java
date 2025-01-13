@@ -1,6 +1,7 @@
 package adoption.animalannonce.dao.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -64,6 +65,7 @@ public class AnimalAnnonce {
     private List<String> images;
 
     @OneToMany(mappedBy = "animalAnnonce", cascade = CascadeType.ALL)
+    @JsonIgnore // Indique que la sérialisation inverse de la relation sera ignorée
     private List<Adoption> adoptions;
 
     public List<Adoption> getAdoptions() {

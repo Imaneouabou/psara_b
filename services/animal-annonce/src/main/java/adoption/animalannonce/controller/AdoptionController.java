@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -54,6 +55,18 @@ public class AdoptionController {
     public ResponseEntity<List<AdoptionDto>> getAllAdoptions() {
         List<AdoptionDto> adoptions = adoptionService.getAllAdoptions();
         return ResponseEntity.ok(adoptions);
+    }
+
+    // Endpoint pour mettre à jour le statut d'une adoption
+    @PutMapping("/{adoptionId}/status/{statusId}")
+    @ResponseStatus(HttpStatus.OK)
+    public AdoptionDto updateStatusDecision(@PathVariable Long adoptionId, @PathVariable Long statusId) {
+        try {
+            return adoptionService.updateStatusDecision(adoptionId, statusId);
+        } catch (IllegalArgumentException e) {
+            // En cas d'erreur, retourner un message détaillé
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     /**
