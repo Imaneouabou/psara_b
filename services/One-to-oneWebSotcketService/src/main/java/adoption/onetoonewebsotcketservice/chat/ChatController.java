@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -26,6 +26,7 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessage chatMessage) {
+        System.out.println("Message received: " + chatMessage); // Vérifiez que ce log s'affiche
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientId(), "/queue/messages",
